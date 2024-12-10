@@ -86,6 +86,14 @@ const Login = () => {
               Forgot your password?
             </a>
           </div>
+
+          <div className="mt-6 text-center text-xs text-gray-400">
+            <p>
+              Note: This is a demo login page for visualization purposes only.
+              <br />
+              No actual authentication is performed.
+            </p>
+          </div>
         </form>
       </div>
     </div>
