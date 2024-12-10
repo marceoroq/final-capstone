@@ -8,12 +8,15 @@ const FormSelect = ({
   required,
   ...props
 }) => {
+  const id = `${name}-select`;
+
   return (
     <div>
-      <label className="mb-2 block font-bold text-gray-700">
+      <label htmlFor={id} className="mb-2 block font-bold text-gray-700">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <select
+        id={id}
         name={name}
         value={value}
         onChange={onChange}

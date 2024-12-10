@@ -8,12 +8,15 @@ const FormInput = ({
   required,
   ...props
 }) => {
+  const id = `${name}-input`;
+
   return (
     <div>
-      <label className="mb-2 block font-bold text-gray-700">
+      <label htmlFor={id} className="mb-2 block font-bold text-gray-700">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input
+        id={id}
         type={type}
         name={name}
         value={value}
