@@ -145,14 +145,14 @@ const ReservationForm = ({
         />
       </div>
 
-      <div className="flex gap-4">
+      <div className="mt-8 flex gap-4">
         <button
           type="submit"
           disabled={isSubmitting}
           className="flex-1 rounded-lg bg-[#495E57] px-6 py-3 font-bold text-white transition-all hover:bg-[#3e504a] disabled:bg-gray-400"
         >
           {isSubmitting
-            ? 'Confirming reservation...'
+            ? 'Processing...'
             : isEditing
               ? 'Update Reservation'
               : 'Confirm Reservation'}
@@ -161,11 +161,23 @@ const ReservationForm = ({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-gray-300 px-6 py-3 font-bold text-gray-700 transition-all hover:bg-gray-50"
+            className="flex-1 rounded-lg border border-red-500 px-6 py-3 font-bold text-red-500 transition-all hover:bg-red-50"
           >
-            Cancel Edit
+            Cancel
           </button>
         )}
+      </div>
+
+      {/* Demo Disclaimer */}
+      <div className="mt-8 rounded-lg bg-gray-50 p-4 text-xs text-gray-500">
+        <p className="text-center">
+          <span className="font-bold">Demo Features:</span>
+          <br />
+          • Reservations are stored in browser&apos;s local storage
+          <br />
+          • API calls are simulated with a 30% chance of failure
+          <br />• Success/Error notifications demonstrate the toast system
+        </p>
       </div>
     </form>
   );
