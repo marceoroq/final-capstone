@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 const toastTypes = {
   success: {
-    bgColor: 'bg-[#41cf56]',
+    bgColor: 'bg-green-600',
     icon: '✓',
   },
   error: {

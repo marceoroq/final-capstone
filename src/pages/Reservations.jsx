@@ -182,6 +182,7 @@ const Reservations = () => {
         'success'
       );
 
+      window.scrollTo(0, 0);
       navigate('/');
     } catch (error) {
       console.error('Error submitting reservation:', error);

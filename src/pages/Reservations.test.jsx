@@ -4,10 +4,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ToastProvider } from '../context/ToastContext';
 import Reservations from './Reservations';
 
-// Mock the API
+// Mock the API with both success and failure scenarios
 vi.mock('../api/bookingApi', () => ({
-  fetchAPI: vi.fn().mockResolvedValue(['17:00', '17:30', '18:00', '18:30']),
-  submitAPI: vi.fn((formData) => Promise.resolve(true)),
+  fetchAPI: vi.fn().mockImplementation(async () => {
+    if (Math.random() > 0.7) {
+      throw new Error('Failed to fetch available times');
+    }
+    return ['17:00', '17:30', '18:00', '18:30'];
+  }),
+  submitAPI: vi.fn().mockImplementation(async (formData) => {
+    if (Math.random() > 0.7) {
+      throw new Error('Failed to submit reservation');
+    }
+    return true;
+  }),
 }));
 
 const renderWithProviders = (component) => {
