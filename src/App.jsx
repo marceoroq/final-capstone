@@ -1,4 +1,4 @@
-import { HashRouter as Router, Routes, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -17,12 +17,12 @@ function App() {
           <Navbar />
           <main className="flex-grow">
             <Routes>
-              <Link path="/" element={<Home />} />
-              <Link path="/about" element={<About />} />
-              <Link path="/menu" element={<Menu />} />
-              <Link path="/reservations" element={<Reservations />} />
-              <Link path="/order-online" element={<OrderOnline />} />
-              <Link path="/login" element={<Login />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/menu" element={<Menu />} />
+              <Route path="/reservations" element={<Reservations />} />
+              <Route path="/order-online" element={<OrderOnline />} />
+              <Route path="/login" element={<Login />} />
             </Routes>
           </main>
           <Footer />
