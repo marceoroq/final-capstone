@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import greekSalad from '../assets/greek-salad.jpg';
-import bruschetta from '../assets/bruchetta.svg';
+import bruschetta from '../assets/bruchetta.webp';
 import lemonDessert from '../assets/lemon-dessert.jpg';
 import restaurantChefB from '../assets/restaurant-chef-B.jpg';
 
