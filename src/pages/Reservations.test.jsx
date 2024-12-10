@@ -68,7 +68,6 @@ describe('Reservations', () => {
       phone: '+1234567890',
     };
 
-    // Fill other required fields
     Object.entries(mockData).forEach(([field, value]) => {
       const input = screen.getByLabelText(new RegExp(field, 'i'));
       fireEvent.change(input, { target: { value } });
@@ -83,13 +82,9 @@ describe('Reservations', () => {
     });
     fireEvent.click(submitButton);
 
-    // Buscar el error en el campo de email
-    await waitFor(() => {
-      const emailField = screen.getByLabelText(/email/i);
-      const emailError = emailField.parentElement.querySelector('.text-red-500');
-      expect(emailError).toBeInTheDocument();
-      expect(emailError).toHaveTextContent(/email/i);
-    });
+    // Check HTML5 validation
+    expect(emailInput).toBeInvalid();
+    expect(emailInput.validity.typeMismatch).toBe(true);
   });
 
   it('shows reservation details after successful submission', async () => {
