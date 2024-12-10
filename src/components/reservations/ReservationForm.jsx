@@ -17,9 +17,9 @@ const ReservationForm = ({
       className="font-secondary mx-auto max-w-2xl rounded-lg bg-white p-6 shadow-lg"
       onSubmit={onSubmit}
     >
-      <h1 className="font-primary mb-8 text-center text-3xl font-bold">
+      <h2 className="font-primary mb-8 text-center text-3xl font-bold">
         {isEditing ? 'Edit Reservation' : 'Reserve a Table'}
-      </h1>
+      </h2>
       <div className="mb-8 grid gap-6 md:grid-cols-2">
         <FormInput
           label="Date"

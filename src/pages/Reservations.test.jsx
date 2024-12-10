@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ToastProvider } from '../context/ToastContext';
 import * as bookingApi from '../api/bookingApi';
 import Reservations from './Reservations';
@@ -20,10 +20,19 @@ const renderWithProviders = (component) => {
 };
 
 describe('Reservations', () => {
+  // Clear mocks and localStorage before each test
+  beforeEach(() => {
+    vi.clearAllMocks();
+    window.localStorage.clear();
+  });
+
   it('renders reservation form initially', () => {
     renderWithProviders(<Reservations />);
 
-    expect(screen.getByText('Reserve a Table')).toBeInTheDocument();
+    // Check for main form elements
+    expect(screen.getByTestId('main-heading')).toHaveTextContent(
+      /reserve a table/i
+    );
     expect(screen.getByLabelText(/date/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/time/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/number of guests/i)).toBeInTheDocument();
@@ -37,18 +46,35 @@ describe('Reservations', () => {
     });
     fireEvent.click(submitButton);
 
+    // Check for all required field errors
     await waitFor(() => {
-      expect(screen.getByText('Please select a date')).toBeInTheDocument();
-      expect(screen.getByText('Please select a time')).toBeInTheDocument();
-      expect(screen.getByText('Name is required')).toBeInTheDocument();
-      expect(screen.getByText('Email is required')).toBeInTheDocument();
-      expect(screen.getByText('Phone number is required')).toBeInTheDocument();
+      expect(screen.getByText(/please select a date/i)).toBeInTheDocument();
+      expect(screen.getByText(/please select a time/i)).toBeInTheDocument();
+      expect(screen.getByText(/name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/email is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/phone number is required/i)).toBeInTheDocument();
     });
   });
 
   it('validates email format', async () => {
     renderWithProviders(<Reservations />);
 
+    // Fill required fields to isolate email validation
+    const mockData = {
+      date: '2024-03-25',
+      time: '17:00',
+      guests: '2',
+      name: 'John Doe',
+      phone: '+1234567890',
+    };
+
+    // Fill other required fields
+    Object.entries(mockData).forEach(([field, value]) => {
+      const input = screen.getByLabelText(new RegExp(field, 'i'));
+      fireEvent.change(input, { target: { value } });
+    });
+
+    // Test invalid email
     const emailInput = screen.getByLabelText(/email/i);
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
 
@@ -57,43 +83,39 @@ describe('Reservations', () => {
     });
     fireEvent.click(submitButton);
 
+    // Buscar el error en el campo de email
     await waitFor(() => {
-      expect(
-        screen.getByText('Please enter a valid email')
-      ).toBeInTheDocument();
+      const emailField = screen.getByLabelText(/email/i);
+      const emailError = emailField.parentElement.querySelector('.text-red-500');
+      expect(emailError).toBeInTheDocument();
+      expect(emailError).toHaveTextContent(/email/i);
     });
   });
 
   it('shows reservation details after successful submission', async () => {
     const mockData = {
       date: '2024-03-25',
-      time: '19:00',
+      time: '17:00',
       guests: '2',
       name: 'John Doe',
       email: 'john@example.com',
       phone: '+1234567890',
+      seating: 'indoor',
+      specialRequests: '',
+      occasion: '',
     };
 
     renderWithProviders(<Reservations />);
 
-    // Fill form
-    fireEvent.change(screen.getByLabelText(/date/i), {
-      target: { value: mockData.date },
-    });
-    fireEvent.change(screen.getByLabelText(/time/i), {
-      target: { value: mockData.time },
-    });
-    fireEvent.change(screen.getByLabelText(/number of guests/i), {
-      target: { value: mockData.guests },
-    });
-    fireEvent.change(screen.getByLabelText(/name/i), {
-      target: { value: mockData.name },
-    });
-    fireEvent.change(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-    fireEvent.change(screen.getByLabelText(/phone/i), {
-      target: { value: mockData.phone },
+    // Fill form fields
+    Object.entries(mockData).forEach(([field, value]) => {
+      if (field === 'seating') {
+        const radio = screen.getByLabelText(/indoor/i);
+        fireEvent.click(radio);
+      } else if (field !== 'specialRequests' && field !== 'occasion') {
+        const input = screen.getByLabelText(new RegExp(field, 'i'));
+        fireEvent.change(input, { target: { value } });
+      }
     });
 
     const submitButton = screen.getByRole('button', {
@@ -102,12 +124,19 @@ describe('Reservations', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(localStorage.getItem('littleLemonReservation')).toBeTruthy();
+      const storedData = window.localStorage.getItem('littleLemonReservation');
+      expect(storedData).toBeTruthy();
+      const parsedData = JSON.parse(storedData);
+      expect(parsedData).toEqual(expect.objectContaining(mockData));
     });
   });
 });
 
 describe('Reservations API Integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('loads available times on mount', async () => {
     renderWithProviders(<Reservations />);
 
@@ -115,26 +144,49 @@ describe('Reservations API Integration', () => {
       expect(bookingApi.fetchAPI).toHaveBeenCalled();
     });
 
-    expect(screen.getByText('17:00')).toBeInTheDocument();
-    expect(screen.getByText('17:30')).toBeInTheDocument();
+    const times = ['17:00', '17:30', '18:00', '18:30'];
+    times.forEach((time) => {
+      expect(screen.getByText(time)).toBeInTheDocument();
+    });
   });
 
   it('updates available times when date changes', async () => {
     renderWithProviders(<Reservations />);
 
     const dateInput = screen.getByLabelText(/date/i);
-    fireEvent.change(dateInput, { target: { value: '2024-03-26' } });
+    const newDate = '2024-03-26';
+    fireEvent.change(dateInput, { target: { value: newDate } });
 
     await waitFor(() => {
-      expect(bookingApi.fetchAPI).toHaveBeenCalledWith('2024-03-26');
+      expect(bookingApi.fetchAPI).toHaveBeenCalledWith(newDate);
     });
   });
 
   it('calls submitAPI when form is submitted successfully', async () => {
+    const mockData = {
+      date: '2024-03-25',
+      time: '17:00',
+      guests: '2',
+      name: 'John Doe',
+      email: 'john@example.com',
+      phone: '+1234567890',
+      seating: 'indoor',
+      specialRequests: '',
+      occasion: '',
+    };
+
     renderWithProviders(<Reservations />);
 
-    // Fill form with valid data
-    // ... código para llenar el formulario
+    // Fill form fields
+    Object.entries(mockData).forEach(([field, value]) => {
+      if (field === 'seating') {
+        const radio = screen.getByLabelText(/indoor/i);
+        fireEvent.click(radio);
+      } else if (field !== 'specialRequests' && field !== 'occasion') {
+        const input = screen.getByLabelText(new RegExp(field, 'i'));
+        fireEvent.change(input, { target: { value } });
+      }
+    });
 
     const submitButton = screen.getByRole('button', {
       name: /confirm reservation/i,
@@ -142,7 +194,9 @@ describe('Reservations API Integration', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(bookingApi.submitAPI).toHaveBeenCalled();
+      expect(bookingApi.submitAPI).toHaveBeenCalledWith(
+        expect.objectContaining(mockData)
+      );
     });
   });
 });

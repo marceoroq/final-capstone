@@ -208,7 +208,10 @@ const Reservations = () => {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <h1 className="mb-8 text-center text-3xl font-bold">
+      <h1
+        className="mb-8 text-center text-3xl font-bold"
+        data-testid="main-heading"
+      >
         {isEditing ? 'Edit Reservation' : 'Reserve a Table'}
       </h1>
 

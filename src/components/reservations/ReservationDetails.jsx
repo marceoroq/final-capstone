@@ -3,9 +3,9 @@ import restaurantImage from '../../assets/restaurant.jpg';
 const ReservationDetails = ({ formData, onEdit, onCancel }) => {
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-8 text-center text-3xl font-bold">
+      <h2 className="mb-8 text-center text-3xl font-bold">
         Your Current Reservation
-      </h1>
+      </h2>
 
       <div className="overflow-hidden rounded-t-lg">
         <img
