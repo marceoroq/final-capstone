@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import greekSalad from '../assets/greek-salad.jpg';
 import bruschetta from '../assets/bruchetta.svg';
 import lemonDessert from '../assets/lemon-dessert.jpg';
-import restaurantFood from '../assets/restauranfood.jpg';
+import restaurantChefB from '../assets/restaurant-chef-B.jpg';
 
 const specialItems = [
   {
@@ -32,32 +32,33 @@ const Home = () => {
   return (
     <main>
       {/* Hero Section */}
-      <section className="bg-[#495E57] py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-            <div className="text-white">
-              <h1 className="font-primary text-6xl font-bold text-[#F4CE14]">
-                Little Lemon
-              </h1>
-              <h2 className="font-primary text-4xl">Chicago</h2>
-              <p className="mb-8 max-w-md text-white">
-                We are a family owned Mediterranean restaurant, focused on
-                traditional recipes served with a modern twist.
-              </p>
-              <Link
-                to="/reservations"
-                className="w-fit rounded-lg bg-[#F4CE14] px-6 py-2 font-bold text-black transition-transform hover:scale-105"
-              >
-                Reserve a table
-              </Link>
-            </div>
-            <div className="relative h-[300px] md:h-auto">
-              <img
-                src={restaurantFood}
-                alt="Featured dish"
-                className="absolute right-0 top-0 h-full w-full rounded-lg object-cover"
-              />
-            </div>
+      <section className="relative py-16">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `linear-gradient(to right, rgba(9, 9, 9, 0.8), rgba(73, 94, 87, 0.8)), url(${restaurantChefB})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+
+        <div className="container relative mx-auto px-4">
+          <div className="max-w-xl text-white">
+            <h1 className="font-primary text-6xl font-bold text-[#F4CE14]">
+              Little Lemon
+            </h1>
+            <h2 className="font-primary text-4xl">Chicago</h2>
+            <p className="mb-8 max-w-md text-white">
+              We are a family owned Mediterranean restaurant, focused on
+              traditional recipes served with a modern twist.
+            </p>
+            <Link
+              to="/reservations"
+              className="w-fit rounded-lg bg-[#F4CE14] px-6 py-2 font-bold text-black transition-transform hover:scale-105"
+            >
+              Reserve a table
+            </Link>
           </div>
         </div>
       </section>
