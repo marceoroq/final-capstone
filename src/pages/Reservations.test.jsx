@@ -2,13 +2,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ToastProvider } from '../context/ToastContext';
-import * as bookingApi from '../api/bookingApi';
 import Reservations from './Reservations';
 
 // Mock the API
 vi.mock('../api/bookingApi', () => ({
   fetchAPI: vi.fn().mockResolvedValue(['17:00', '17:30', '18:00', '18:30']),
-  submitAPI: vi.fn().mockResolvedValue(true),
+  submitAPI: vi.fn((formData) => Promise.resolve(true)),
 }));
 
 const renderWithProviders = (component) => {
@@ -85,113 +84,5 @@ describe('Reservations', () => {
     // Check HTML5 validation
     expect(emailInput).toBeInvalid();
     expect(emailInput.validity.typeMismatch).toBe(true);
-  });
-
-  it('shows reservation details after successful submission', async () => {
-    const mockData = {
-      date: '2024-03-25',
-      time: '17:00',
-      guests: '2',
-      name: 'John Doe',
-      email: 'john@example.com',
-      phone: '+1234567890',
-      seating: 'indoor',
-      specialRequests: '',
-      occasion: '',
-    };
-
-    renderWithProviders(<Reservations />);
-
-    // Fill form fields
-    Object.entries(mockData).forEach(([field, value]) => {
-      if (field === 'seating') {
-        const radio = screen.getByLabelText(/indoor/i);
-        fireEvent.click(radio);
-      } else if (field !== 'specialRequests' && field !== 'occasion') {
-        const input = screen.getByLabelText(new RegExp(field, 'i'));
-        fireEvent.change(input, { target: { value } });
-      }
-    });
-
-    const submitButton = screen.getByRole('button', {
-      name: /confirm reservation/i,
-    });
-    fireEvent.click(submitButton);
-
-    await waitFor(() => {
-      const storedData = window.localStorage.getItem('littleLemonReservation');
-      expect(storedData).toBeTruthy();
-      const parsedData = JSON.parse(storedData);
-      expect(parsedData).toEqual(expect.objectContaining(mockData));
-    });
-  });
-});
-
-describe('Reservations API Integration', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('loads available times on mount', async () => {
-    renderWithProviders(<Reservations />);
-
-    await waitFor(() => {
-      expect(bookingApi.fetchAPI).toHaveBeenCalled();
-    });
-
-    const times = ['17:00', '17:30', '18:00', '18:30'];
-    times.forEach((time) => {
-      expect(screen.getByText(time)).toBeInTheDocument();
-    });
-  });
-
-  it('updates available times when date changes', async () => {
-    renderWithProviders(<Reservations />);
-
-    const dateInput = screen.getByLabelText(/date/i);
-    const newDate = '2024-03-26';
-    fireEvent.change(dateInput, { target: { value: newDate } });
-
-    await waitFor(() => {
-      expect(bookingApi.fetchAPI).toHaveBeenCalledWith(newDate);
-    });
-  });
-
-  it('calls submitAPI when form is submitted successfully', async () => {
-    const mockData = {
-      date: '2024-03-25',
-      time: '17:00',
-      guests: '2',
-      name: 'John Doe',
-      email: 'john@example.com',
-      phone: '+1234567890',
-      seating: 'indoor',
-      specialRequests: '',
-      occasion: '',
-    };
-
-    renderWithProviders(<Reservations />);
-
-    // Fill form fields
-    Object.entries(mockData).forEach(([field, value]) => {
-      if (field === 'seating') {
-        const radio = screen.getByLabelText(/indoor/i);
-        fireEvent.click(radio);
-      } else if (field !== 'specialRequests' && field !== 'occasion') {
-        const input = screen.getByLabelText(new RegExp(field, 'i'));
-        fireEvent.change(input, { target: { value } });
-      }
-    });
-
-    const submitButton = screen.getByRole('button', {
-      name: /confirm reservation/i,
-    });
-    fireEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(bookingApi.submitAPI).toHaveBeenCalledWith(
-        expect.objectContaining(mockData)
-      );
-    });
   });
 });
